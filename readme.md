@@ -15,26 +15,26 @@ Then clone project and go to project directory:
 
     cd poloniex_web
 
-###1. Database install
+### 1. Database install
 
     cd sql_scripts
     ./create_db
     cd ..
     
-###2. Activation virtualenv
+### 2. Activation virtualenv
 
     virtualenv -p python3.5 env
     source env/bin/activate
     
-###3. Install requirements
+### 3. Install requirements
 
     pip3 install -r requirements.txt
     
-###4. Create tables
+### 4. Create tables
 
     python create_tables.py
     
-###5. Config file
+### 5. Config file
 Add your keys and secrets to api_config.ini as follow:
     
     [poloniex1]
@@ -46,7 +46,7 @@ Put a name of your account in square brackets. Call it so you can easily disting
 
 If you have one account then fill one block.
 
-###6. Setup cron
+### 6. Setup cron
 
     sudo crontab -e
    
@@ -58,4 +58,4 @@ And restart cron:
     
     service cron restart
 
-###7. Configure uwsgi and nginx
+### 7. Configure uwsgi and nginx
