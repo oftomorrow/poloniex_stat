@@ -1,6 +1,6 @@
-Poloniex tiny statistic
+Poloniex_web
 ===
-This project is based on Flask 0.12.
+Poloniex_web is tiny multi account statistic for Poloniex. It is based on Flask 0.12.
 
 The project includes two parts. First part receives data and stores it into database. Second part is a statistic page that shows chart and tables with data.
 
