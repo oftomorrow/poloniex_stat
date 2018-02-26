@@ -1,10 +1,10 @@
-Poloniex short statistic
+Poloniex tiny statistic
 ===
 This project is based on Flask 0.12.
 
 The project includes two parts. First part receives data and stores it into database. Second part is a statistic page that shows chart and tables with data.
 
-### Install
+## Install
 This instruction is written for Ubuntu 16.04
 
 First up, install Python 3.5, Postgresql and virtualenv:
@@ -15,26 +15,26 @@ Then clone project and go to project directory:
 
     cd poloniex_web
 
-####1. Database install
+###1. Database install
 
     cd sql_scripts
     ./create_db
     cd ..
     
-####2. Activate virtualenv
+###2. Activation virtualenv
 
     virtualenv -p python3.5 env
     source env/bin/activate
     
-####3. Install requirements
+###3. Install requirements
 
     pip3 install -r requirements.txt
     
-####4. Create tables
+###4. Create tables
 
     python create_tables.py
     
-####5. Config file
+###5. Config file
 Add your keys and secrets to api_config.ini as follow:
     
     [poloniex1]
@@ -42,11 +42,11 @@ Add your keys and secrets to api_config.ini as follow:
     secret=SECRET
 
 
-Put the name of your account in square brackets. Call it so you can easily distinguish it on the statistic page. It's needed for separating multiple accounts. 
+Put a name of your account in square brackets. Call it so you can easily distinguish it on the statistic page. Names are used for separating multiple accounts.  
 
 If you have one account then fill one block.
 
-####6. Setup cron
+###6. Setup cron
 
     sudo crontab -e
    
@@ -58,4 +58,4 @@ And restart cron:
     
     service cron restart
 
-####7. Configure uwsgi and nginx
+###7. Configure uwsgi and nginx
