@@ -1,0 +1,5 @@
+Flask==0.12
+Jinja2==2.10
+psycopg2==2.7.3.2
+uwsgi==2.0.15
+Werkzeug==0.13

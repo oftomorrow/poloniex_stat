@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Статистика</title>
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+
+    <script lang="JavaScript">
+        $.getJSON('/btc', function (data) {
+            // Create the chart
+            Highcharts.stockChart('container', {
+
+                rangeSelector: {
+                    selected: 1
+                },
+
+                title: {
+                    text: 'Estimated BTC'
+                },
+
+                series: [{
+                    name: 'BTC',
+                    data: data,
+                    tooltip: {
+                        valueDecimals: 7
+                    }
+                }]
+            });
+        });
+    </script>
+</head>
+<body>
+    <h3>Статистика</h3>
+
+    <div id="container" style="height: 400px; min-width: 310px"></div>
+
+    <table style="float: left; border: 1px solid gray; border-collapse: collapse; margin: 50px;" border="1">
+    <caption style="padding: 5px;">Часовая разница</caption>
+            <tr>
+               <th style="padding: 5px;"> Время </th>
+               <th style="padding: 5px;"> Количество </th>
+               <th style="padding: 5px;"> Дельта, % </th>
+               <th style="padding: 5px;"> Дельта, btc </th>
+            </tr>
+    {% for hr in data.hourresults %}
+            <tr>
+               <td style="padding: 5px;"> {{ hr[0].strftime("%d.%m.%Y %H:%M") }} </td>
+               <td style="padding: 5px;"> {{ hr[1] }} </td>
+               <td style="padding: 5px;"> {{ '%0.2f' % hr[2]|float }} </td>
+               <td style="padding: 5px;"> {{ hr[3] }} </td>
+            </tr>
+    {% endfor %}
+    </table>
+
+    <table style="display: inline-block; border: 1px solid gray; border-collapse: collapse; margin: 50px;" border="1">
+    <caption style="padding: 5px;">Суточная разница</caption>
+            <tr>
+               <th style="padding: 5px;"> Время </th>
+               <th style="padding: 5px;"> Количество </th>
+               <th style="padding: 5px;"> Дельта, % </th>
+               <th style="padding: 5px;"> Дельта, btc </th>
+            </tr>
+    {% for dr in data.dayresults %}
+            <tr>
+               <td style="padding: 5px;"> {{ dr[0].strftime("%d.%m.%Y %H:%M") }} </td>
+               <td style="padding: 5px;"> {{ dr[1] }} </td>
+               <td style="padding: 5px;"> {{ '%0.2f' % dr[2]|float }} </td>
+               <td style="padding: 5px;"> {{ dr[3] }} </td>
+            </tr>
+    {% endfor %}
+    </table>
+</body>
+</html>
