@@ -7,9 +7,83 @@
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://code.highcharts.com/stock/highstock.js"></script>
     <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
-
+    <style type="text/css">
+        table, td, th {
+            border: 1px solid gray;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 50px;
+        }
+        th {
+            padding: 5px;
+        }
+        td {
+            padding: 5px;
+        }
+    </style>
     <script lang="JavaScript">
         seriesOpt = [];
+        data = [];
+        names = {};
+
+        function get_full_number(n){
+            if (String(n).length > 1) {
+                return n;
+            } else {
+                return '0'+n;
+            }
+        }
+
+        function get_table_content(table, response) {
+            if (response.hasOwnProperty('names')) {
+                i = 0;
+                names = response['names'];
+                row = document.createElement('tr');
+                row.appendChild(document.createElement('th'));
+                row.cells[i].appendChild(document.createTextNode('Время'));
+                for (var id in names) {
+                    if (names.hasOwnProperty(id)) {
+                        row.appendChild(document.createElement('th'));
+                        row.cells[i+1].appendChild(document.createTextNode('BTC '+names[id]));
+                        row.appendChild(document.createElement('th'));
+                        row.cells[i+2].appendChild(document.createTextNode('Дельта '+names[id]+', %'));
+                        row.appendChild(document.createElement('th'));
+                        row.cells[i+3].appendChild(document.createTextNode('Дельта '+names[id]+', btc'));
+
+                        i += 3;
+                    }
+                }
+                table.appendChild(row);
+            }
+
+            if (response.hasOwnProperty('data')) {
+                data = response['data'];
+                // for every row
+                for (var i = 0; i < data.length; i++) {
+                    j = 0;
+                    row = document.createElement('tr');
+                    row.appendChild(document.createElement('td'));
+                    date = new Date(data[i]['balance_datetime']);
+                    date_field = get_full_number(date.getDate())+'.'+get_full_number(date.getMonth()+1)+'.'+date.getFullYear()+' '+get_full_number(date.getHours())+':'+get_full_number(date.getMinutes());
+                    row.cells[j].appendChild(document.createTextNode(date_field));
+                    for (var id in names) {
+                        if (names.hasOwnProperty(id)) {
+                            row.appendChild(document.createElement('td'));
+                            row.cells[j+1].appendChild(document.createTextNode(data[i]['btc_'+id].toFixed(7)));
+                            row.appendChild(document.createElement('td'));
+                            row.cells[j+2].appendChild(document.createTextNode(data[i]['percent_'+id].toFixed(4)));
+                            row.appendChild(document.createElement('td'));
+                            row.cells[j+3].appendChild(document.createTextNode(data[i]['delta_'+id].toFixed(7)));
+
+                            j += 3;
+                        }
+                    }
+                    table.appendChild(row);
+                }
+            }
+            return table;
+        }
 
         $.getJSON('/btc', function (data) {
 
@@ -39,6 +113,31 @@
                 series: seriesOpt
             });
         });
+
+
+        $.getJSON('/hours', function (response) {
+            var table = document.createElement('table');
+            table.style.cssFloat = 'left';
+            caption = table.createCaption();
+            caption.innerHTML = '<b>Часовая разница</b>';
+            caption.style.padding = '5px';
+            {#table.caption.appendChild(document.create('<b>Часовая разница</b>'));#}
+            {#table.createCaption('Часовая разница');#}
+            table = get_table_content(table, response);
+            document.body.appendChild(table);
+         });
+
+
+        $.getJSON('/days', function (response) {
+            var table2 = document.createElement('table');
+            {#table2.style.display = 'inline-block';#}
+            caption2 = table2.createCaption();
+            caption2.innerHTML = '<b>Суточная разница</b>';
+            caption2.style.padding = '5px';
+            {#table2.createCaption('Суточная разница');#}
+            table2 = get_table_content(table2, response);
+            document.body.appendChild(table2);
+         });
     </script>
 </head>
 <body>
@@ -46,40 +145,40 @@
 
     <div id="container" style="height: 400px; min-width: 310px"></div>
 
-    <table style="float: left; border: 1px solid gray; border-collapse: collapse; margin: 50px;" border="1">
-    <caption style="padding: 5px;">Часовая разница</caption>
-            <tr>
-               <th style="padding: 5px;"> Время </th>
-               <th style="padding: 5px;"> Количество </th>
-               <th style="padding: 5px;"> Дельта, % </th>
-               <th style="padding: 5px;"> Дельта, btc </th>
-            </tr>
-    {% for hr in data.hourresults %}
-            <tr>
-               <td style="padding: 5px;"> {{ hr[0].strftime("%d.%m.%Y %H:%M") }} </td>
-               <td style="padding: 5px;"> {{ hr[1] }} </td>
-               <td style="padding: 5px;"> {{ '%0.2f' % hr[2]|float }} </td>
-               <td style="padding: 5px;"> {{ hr[3] }} </td>
-            </tr>
-    {% endfor %}
-    </table>
-
-    <table style="display: inline-block; border: 1px solid gray; border-collapse: collapse; margin: 50px;" border="1">
-    <caption style="padding: 5px;">Суточная разница</caption>
-            <tr>
-               <th style="padding: 5px;"> Время </th>
-               <th style="padding: 5px;"> Количество </th>
-               <th style="padding: 5px;"> Дельта, % </th>
-               <th style="padding: 5px;"> Дельта, btc </th>
-            </tr>
-    {% for dr in data.dayresults %}
-            <tr>
-               <td style="padding: 5px;"> {{ dr[0].strftime("%d.%m.%Y %H:%M") }} </td>
-               <td style="padding: 5px;"> {{ dr[1] }} </td>
-               <td style="padding: 5px;"> {{ '%0.2f' % dr[2]|float }} </td>
-               <td style="padding: 5px;"> {{ dr[3] }} </td>
-            </tr>
-    {% endfor %}
-    </table>
+{#    <table style="float: left; border: 1px solid gray; border-collapse: collapse; margin: 50px;" border="1">#}
+{#    <caption style="padding: 5px;">Часовая разница</caption>#}
+{#            <tr>#}
+{#               <th style="padding: 5px;"> Время </th>#}
+{#               <th style="padding: 5px;"> Количество </th>#}
+{#               <th style="padding: 5px;"> Дельта, % </th>#}
+{#               <th style="padding: 5px;"> Дельта, btc </th>#}
+{#            </tr>#}
+{#    {% for hr in data.hourresults %}#}
+{#            <tr>#}
+{#               <td style="padding: 5px;"> {{ hr[0].strftime("%d.%m.%Y %H:%M") }} </td>#}
+{#               <td style="padding: 5px;"> {{ hr[1] }} </td>#}
+{#               <td style="padding: 5px;"> {{ '%0.2f' % hr[2]|float }} </td>#}
+{#               <td style="padding: 5px;"> {{ hr[3] }} </td>#}
+{#            </tr>#}
+{#    {% endfor %}#}
+{#    </table>#}
+{##}
+{#    <table style="display: inline-block; border: 1px solid gray; border-collapse: collapse; margin: 50px;" border="1">#}
+{#    <caption style="padding: 5px;">Суточная разница</caption>#}
+{#            <tr>#}
+{#               <th style="padding: 5px;"> Время </th>#}
+{#               <th style="padding: 5px;"> Количество </th>#}
+{#               <th style="padding: 5px;"> Дельта, % </th>#}
+{#               <th style="padding: 5px;"> Дельта, btc </th>#}
+{#            </tr>#}
+{#    {% for dr in data.dayresults %}#}
+{#            <tr>#}
+{#               <td style="padding: 5px;"> {{ dr[0].strftime("%d.%m.%Y %H:%M") }} </td>#}
+{#               <td style="padding: 5px;"> {{ dr[1] }} </td>#}
+{#               <td style="padding: 5px;"> {{ '%0.2f' % dr[2]|float }} </td>#}
+{#               <td style="padding: 5px;"> {{ dr[3] }} </td>#}
+{#            </tr>#}
+{#    {% endfor %}#}
+{#    </table>#}
 </body>
 </html>
