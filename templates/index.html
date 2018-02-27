@@ -9,7 +9,18 @@
     <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
 
     <script lang="JavaScript">
+        seriesOpt = [];
+
         $.getJSON('/btc', function (data) {
+
+            for (var key in data) {
+                if (data.hasOwnProperty(key)) {
+                    seriesOpt.push({
+                        name: key,
+                        data: data[key]
+                    })
+                }
+            }
             // Create the chart
             Highcharts.stockChart('container', {
 
@@ -21,13 +32,11 @@
                     text: 'Estimated BTC'
                 },
 
-                series: [{
-                    name: 'BTC',
-                    data: data,
-                    tooltip: {
-                        valueDecimals: 7
-                    }
-                }]
+                tooltip: {
+                    valueDecimals: 7,
+                    split: true
+                },
+                series: seriesOpt
             });
         });
     </script>

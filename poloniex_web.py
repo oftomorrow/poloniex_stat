@@ -10,12 +10,12 @@ app = Flask(__name__)
 
 def myconverter(o):
     if isinstance(o, datetime.datetime):
-        # return o.__str__()
         return int(o.strftime("%s")) * 1000
+
 
 @app.route('/')
 def hello_world():
-    sql = "SELECT balance_datetime, btc " \
+    sql = "SELECT balance_datetime, btc, account_id " \
           "FROM balance_btc " \
           "WHERE extract('minute' from balance_datetime) = 0 " \
           "AND balance_datetime >= (CURRENT_DATE - INTERVAL '1 day') " \
@@ -24,6 +24,7 @@ def hello_world():
     conn = None
     hourresults = []
     try:
+
         params = {"host": "localhost",
                   "database": "poloniex_stat",
                   "user": "poloniex",
@@ -117,31 +118,29 @@ def hello_world():
 
 @app.route('/btc', methods=['GET'])
 def get_btc():
-    sql = "SELECT balance_datetime, btc FROM balance_btc ORDER BY balance_datetime ASC;"
+    sql_accounts = "SELECT name " \
+          "FROM accounts " \
+          "ORDER BY name ASC;"
+    sql = "SELECT a.name, b.balance_datetime, b.btc " \
+          "FROM balance_btc as b " \
+          "LEFT JOIN accounts as a " \
+          "ON a.id = b.account_id " \
+          "ORDER BY balance_datetime ASC;"
     conn = None
-    results = []
+    results = {}
     try:
-        # read the connection parameters
-        # params = config()
-        params = {"host": "localhost",
-                  "database": "poloniex_stat",
-                  "user": "poloniex",
-                  "password": "poloniex",}
-        # connect to the PostgreSQL server
+        params = config()
         conn = psycopg2.connect(**params)
 
-        # dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        # dict_cur.execute(sql)
-        # results = dict_cur.fetchall()
-        # # close communication with the database
-        # dict_cur.close()
+        cur = conn.cursor()
+        cur.execute(sql_accounts)
+        for acc in cur.fetchall():
+            results[acc[0]] = []
 
         cur = conn.cursor()
         cur.execute(sql)
-        results = cur.fetchall()
-        # for row in cur.fetchall():
-        #     results.append(dict(zip(columns, row)))
-        # close communication with the database
+        for row in cur.fetchall():
+            results[row[0]].append([row[1], row[2]])
         cur.close()
 
     except (Exception, psycopg2.DatabaseError) as error:
