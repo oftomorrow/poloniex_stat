@@ -40,6 +40,10 @@ Add your keys and secrets to api_config.ini as follow:
     [poloniex1]
     key=KEY
     secret=SECRET
+    
+    [poloniex2]
+    key=KEY
+    secret=SECRET
 
 
 Put a name of your account in square brackets. Call it so you can easily distinguish it on the statistic page. Names are used for separating multiple accounts.  
@@ -59,3 +63,38 @@ And restart cron:
     service cron restart
 
 ### 7. Configure uwsgi and nginx
+
+Modify `/path_to_nginx_config/sites-available/poloniex_web` like that:
+
+    server {
+        listen 80;
+        server_name _;
+
+        location / {
+                include uwsgi_params;
+                uwsgi_pass unix:/var/www/poloniex_web/poloniex_web.sock;
+        }
+    }
+
+Create a link in `/sites-enabled/`:
+
+    sudo ln -s /path_to_nginx_config/sites-available/poloniex /path_to_nginx_config/sites-enabled/
+
+
+Create a service for uWSGI `/etc/systemd/system/poloniex_web_service`:
+
+    [Unit]
+    Description=uWSGI instance to serve poloniex_web
+    After=network.target
+    
+    [Service]
+    User=control
+    Group=www-data
+    WorkingDirectory=/var/www/poloniex_web
+    Environment="PATH=/var/www/poloniex_web/env/bin"
+    ExecStart=/var/www/poloniex_web/env/bin/uwsgi --ini poloniex_web.ini
+    
+    [Install]
+    WantedBy=multi-user.target
+
+Do not forget to change user and group and all paths to your own.
