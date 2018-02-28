@@ -85,7 +85,7 @@ def get_hours_data():
         sql = "SELECT b.balance_datetime" + select + \
               "FROM (SELECT DISTINCT date_trunc('hour', balance_datetime) as balance_datetime FROM balance_btc) as b " + join + \
               "WHERE b.balance_datetime >= (CURRENT_DATE - INTERVAL '1 day') " \
-              "ORDER BY b.balance_datetime;"
+              "ORDER BY b.balance_datetime DESC;"
 
         results['names'] = names
 
@@ -164,7 +164,7 @@ def get_days_data():
 
         sql = "SELECT b.balance_datetime" + select + \
               "FROM (SELECT DISTINCT date_trunc('day', balance_datetime) as balance_datetime FROM balance_btc WHERE balance_datetime >= (CURRENT_DATE - INTERVAL '32 day')) as b " + join + \
-              "ORDER BY b.balance_datetime;"
+              "ORDER BY b.balance_datetime DESC;"
 
         results['names'] = names
 
