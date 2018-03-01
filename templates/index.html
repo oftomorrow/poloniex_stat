@@ -65,7 +65,7 @@
             if (response.hasOwnProperty('data')) {
                 data = response['data'];
                 // for every row
-                for (var i = 0; i < data.length; i++) {
+                for (var i = data.length-1; i >= 0; i--) {
                     j = 0;
                     btc_sum = 0;
                     delta_sum = 0;
