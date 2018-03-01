@@ -124,7 +124,7 @@ def get_hours_data():
             result.append(row)
 
         dict_cur.close()
-        results['data'] = result[-24:]
+        results['data'] = result[:24]
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -203,7 +203,7 @@ def get_days_data():
             result.append(row)
 
         dict_cur.close()
-        results['data'] = result[-31:]
+        results['data'] = result[:31]
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
